@@ -1,8 +1,8 @@
 ---
 feature_code: FEAT-001
 service: sample-project
-version: 1
-status: draft
+version: 2
+status: complete
 spec_version: 9
 sources:
   - path: knowledge/system_requirement_document.md
@@ -11,7 +11,7 @@ sources:
   - path: knowledge/nexcommon-reuse-survey.md
     source_version: "1.0"
     note: Survey of the shared nexcommon library. Source of every reuse decision below — audit_helper (§1), the no-op WhitelistValidator (§2), the regex constants (§3), the HTTP/DTO scaffolding (§4), and the house migration style (§5).
-pr_url: null
+pr_url: https://github.com/william22913/test-docs/pull/2
 last_updated: 2026-09-28
 ---
 
