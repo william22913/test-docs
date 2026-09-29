@@ -1,18 +1,22 @@
 ---
 feature_code: FEAT-001
 service: sample-project
-version: 2
-status: complete
+version: 3
+status: draft
 spec_version: 9
 sources:
   - path: knowledge/system_requirement_document.md
     source_version: "1.0"
     note: The SRD for the Teacher Management Module (Teacher CRUD). Source of the CRUD flows and the hard-delete prohibition. Superseded by spec.md in several places — the status enum, Primary_Subject, class reassignment, and all Subject/Class/Student links.
   - path: knowledge/nexcommon-reuse-survey.md
-    source_version: "1.0"
+    source_version: "1.1"
     note: Survey of the shared nexcommon library. Source of every reuse decision below — audit_helper (§1), the no-op WhitelistValidator (§2), the regex constants (§3), the HTTP/DTO scaffolding (§4), and the house migration style (§5).
-pr_url: https://github.com/william22913/test-docs/pull/2
-last_updated: 2026-09-28
+non_functional_concerns:
+  - audit_durability
+  - search_index_ceiling
+  - no_authentication
+pr_url: null
+last_updated: 2026-09-29
 ---
 
 # FEAT-001 — Architecture
@@ -189,7 +193,7 @@ requires hard delete to be *unreachable*, so no route and no DAO method exists
 for it. Deactivation is its own endpoint because the spec treats it as its own
 operation with its own flow.
 
-## Situational docs — what surfaced, and what was decided
+## Non-functional concerns
 
 Three non-functional concerns came up in this design. Each is handled here
 rather than in a separate document, because each is a paragraph, not a doc.
@@ -204,12 +208,9 @@ rather than in a separate document, because each is a paragraph, not a doc.
 3. **No auth.** The spec already carries this as a risk note. A2 restates the
    consequence and does not soften it.
 
-Deliberately **not** written: no `deployment.md` (nothing to deploy yet — no
-infrastructure is chosen beyond Postgres and NATS), no `idempotency.md` (the
-create path's duplicate protection is the email unique constraint; nexcommon's
-idempotency middleware is available if retry semantics are wanted later), no
-`production-readiness.md` (the feature is explicitly not deployable before auth
-lands — a readiness doc would be fiction).
+No separate non-functional document is written for any of the three. Each is
+recorded in the ADR or `database.md` section that owns it, and a document
+holding a single paragraph would be a stub, not a reference.
 
 ---
 
@@ -248,7 +249,7 @@ marked **[deferred]** are deferred by the spec itself and are carried here as
 
 - **C1** create with required fields → persists, retrievable by returned `Teacher_ID` — `POST /teachers`; the trigger assigns `teacher_code`; `GET /teachers/{id}`.
 - **C2** `Teacher_ID` matches format, unique, no reuse — PK-derived `TCH-<hire_year>-<id>`, `uq_teachers_teachercode`. Gaps are possible; reuse is not.
-- **C3** duplicate email → rejected with field-level `Email` error, zero rows written — `uq_teachers_email`; pre-check is for the message only; single transaction.
+- **C3** duplicate email → rejected with field-level `Email` error, zero rows written — `uq_teachers_email_lower` (case-insensitive, see `database.md` N1); pre-check is for the message only; single transaction.
 - **C4** `First_Name`/`Last_Name` outside 2–50 → rejected naming the field — DTO validator; `VARCHAR(50)` caps the top end.
 - **C5** omitting a required field → rejected naming the field — `NOT NULL` + DTO validator.
 - **C6** `Employment_Status` defaults to `Active` — column `DEFAULT 'ACTIVE'`.
@@ -292,7 +293,7 @@ marked **[deferred]** are deferred by the spec itself and are carried here as
 
 **Cross-cutting**
 
-- **C30** email uniqueness holds under concurrency — the `UNIQUE` constraint, deliberately the enforcement point rather than the application pre-check.
+- **C30** email uniqueness holds under concurrency — the functional unique index `uq_teachers_email_lower`, deliberately the enforcement point rather than the application pre-check. Case-insensitive: `Alice@…` and `alice@…` are the same mailbox and collide.
 - **C31** `Phone_Number`, when present, matches the project's phone regex — `regex.PHONE_NUMBER_WITH_COUNTRY_CODE` from nexcommon (A3); column nullable, so absent is valid.
 - **C32** p95 < 500ms at 20 records/page — **no target is designed against.** The spec marks the number invented ("replace with the real target or drop the line"). No latency budget was agreed, so none is claimed; the substring-search ceiling is documented for when a real target arrives.
 
@@ -339,7 +340,7 @@ marked **[deferred]** are deferred by the spec itself and are carried here as
 
 ### Edge cases
 
-- **Duplicate email on create** — rejected; `uq_teachers_email` (C3).
+- **Duplicate email on create** — rejected; `uq_teachers_email_lower` (C3). The pre-check query must be written `lower(email) = lower($1)` to use the index.
 - **Hard delete attempted** — no path exists (C19).
 - **Duplicate profiles under different emails** — **only partially addressed, and worth stating plainly.** The SRD's mitigation is "strict uniqueness checks on the identifying attributes", but the only attribute this feature makes unique is `email`. Nothing prevents two records for the same person under different addresses — there is no government-ID or equivalent field in the spec's attribute list. This is an accepted gap, not a solved problem.
 - **Education: optional per teacher** — the FK is on the child, so zero rows is a valid state and the detail view renders empty (C13).
