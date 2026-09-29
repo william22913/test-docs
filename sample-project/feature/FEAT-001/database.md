@@ -2,7 +2,7 @@
 feature_code: FEAT-001
 service: sample-project
 version: 3
-status: draft
+status: complete
 spec_version: 9
 sources:
   - path: knowledge/system_requirement_document.md
@@ -11,7 +11,7 @@ sources:
   - path: knowledge/nexcommon-reuse-survey.md
     source_version: "1.1"
     note: Survey of the shared nexcommon library. Source of the house DDL/migration style (§5), the audit_helper before-snapshot query that mandates uuid_key on audited tables and deleted on teachers (§1), and the regex constants (§3).
-pr_url: null
+pr_url: https://github.com/william22913/test-docs/pull/4
 last_updated: 2026-09-29
 ---
 

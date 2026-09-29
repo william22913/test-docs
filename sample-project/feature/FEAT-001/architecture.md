@@ -2,7 +2,7 @@
 feature_code: FEAT-001
 service: sample-project
 version: 3
-status: draft
+status: complete
 spec_version: 9
 sources:
   - path: knowledge/system_requirement_document.md
@@ -15,7 +15,7 @@ non_functional_concerns:
   - audit_durability
   - search_index_ceiling
   - no_authentication
-pr_url: null
+pr_url: https://github.com/william22913/test-docs/pull/4
 last_updated: 2026-09-29
 ---
 
