@@ -1,9 +1,9 @@
 ---
 feature_code: FEAT-001
 service: sample-project
-version: 9
+version: 10
 status: complete
-pr_url: https://github.com/william22913/test-docs/pull/1
+pr_url: https://github.com/william22913/test-docs/pull/6
 completeness:
   problem: covered
   target_user: covered
