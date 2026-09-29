@@ -1,8 +1,15 @@
 # nexcommon reuse survey — FEAT-001
 
-**Version:** 1.0
-**Date:** 2026-09-28
+**Version:** 1.1
+**Date:** 2026-09-28, amended 2026-09-29.
 **Surveyed against:** local clone at `C:\Users\Pongo\Documents\github\nexcommon`, `main` branch.
+
+> **Changelog — 1.1.** §1 previously stated the `uuid_key` *and* `deleted`
+> requirements were "both on `teachers` and `teacher_education_histories`". That
+> was wrong: only `uuid_key` is on both. `deleted` is on `teachers` alone, and
+> `teacher_education_histories` has none — it hard-deletes. The library
+> requirement itself is unchanged; the sentence about where it was applied was
+> wrong, and `database.md` had it right. Corrected in §1 and flagged there.
 
 ## Why this document exists
 
@@ -70,8 +77,19 @@ Mechanics, read from `audit_builder.go`:
 2. **Every audited table needs a `deleted` boolean column.**
    `GetDataForAuditByIDTx` filters `deleted = false` for non-delete actions.
 
-Both are on `teachers` and `teacher_education_histories` for this reason, not
-because the spec asked for them.
+Both requirements were applied to `teachers`, because `teachers` is the only
+table FEAT-001 registers for auditing. It is the only table carrying `deleted`;
+`uuid_key` is on all three tables, but on `teacher_education_histories` and
+`institution_levels` it is house convention rather than a library requirement —
+nothing reads it there.
+
+**`teacher_education_histories` deliberately has no `deleted` column** and
+**must not be registered with `audit_helper` as the schema stands.** The
+before-snapshot query filters `deleted = false` by literal name against whatever
+table it is given, so registering an education row would fail at runtime. If
+education rows ever need their own audit trail, the column has to be added
+first. (Survey v1.0 said the column was on both tables; that was the error this
+changelog fixes.)
 
 ### Durability caveat — recorded, accepted
 
