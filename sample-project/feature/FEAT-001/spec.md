@@ -17,8 +17,11 @@ sources:
   - path: knowledge/system_requirement_document.md
     source_version: "1.0"
     note: The SRD for the Teacher Management Module (Teacher CRUD) — business objectives, user roles, functional CRUD rules, the TEACHER entity, and the use-case flow. Primary source for this feature; every claim in this spec traces to it unless marked otherwise.
-architect_feedback: []
-last_updated: 2026-09-28
+architect_feedback:
+  - date: 2026-09-29
+    item: spec_length_constraints
+    note: The FEAT-001 spec currently lacks explicit max/min length constraints for textual fields (First_Name, Last_Name, Email, Phone_Number, Focused_Subject) and for numeric fields (Education score). It also lacks guidance on Unicode handling and whether constraints are enforced at API boundaries, DB layer, or both. Please specify exact max/min lengths, allowed character sets, normalization rules, and whether these constraints should be enforced at validation, persistence, or both. How should length constraints apply to Education_history scores and education notes? (Open question for BA)
+last_updated: 2026-09-29
 ---
 
 # FEAT-001 — Teacher CRUD
