@@ -1,8 +1,8 @@
 ---
 feature_code: FEAT-002
 service: sample-project
-version: 1
-status: draft
+version: 2
+status: complete
 completeness:
   problem: covered
   target_user: covered
@@ -17,7 +17,7 @@ sources:
     source_version: unversioned
     note: The STUDENT entity, supplied by the user in conversation — the SRD defines no student entity. Holds the user's table verbatim plus the five clarifications that followed it; every student field in this spec traces here.
 architect_feedback: []
-pr_url: null
+pr_url: https://github.com/william22913/test-docs/pull/9
 last_updated: 2026-09-30
 ---
 
